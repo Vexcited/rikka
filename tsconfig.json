@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+
+    "removeComments": true,
+    "resolveJsonModule": true,
+
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "sourceRoot": "./src",
+    "mapRoot": "./dist",
+    "baseUrl": "./",
+
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

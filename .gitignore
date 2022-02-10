@@ -1,0 +1,30 @@
+# Logs.
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports from Node.js.
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data.
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependencies.
+node_modules/
+
+# TypeScript build and cache.
+*.tsbuildinfo
+dist/
+
+# ESLint cache.
+.eslintcache
+
+# ENV variable file for `dotenv`.
+.env
