@@ -1,5 +1,7 @@
 import WebSocket from "ws";
-import HandleGatewayMessage from "./handleGatewayMessage.js";
+
+import handleGatewayMessage from "./handleGatewayMessage.js";
+import handleGatewayClose from "./handleGatewayClose.js";
 
 class DiscordBotClient {
   /** Discord bot token. */
@@ -16,23 +18,28 @@ class DiscordBotClient {
    */
   private heartbeat_interval?: NodeJS.Timer;
 
+  /** Data from `READY` dispatch message. */
+  public bot_data: any;
+
   constructor (token: string) {
+    if (!token) {
+      throw new Error("Expected one parameter 'token' in DiscordBotClient constructor.");
+    }
+
     this.token = token;
     this.heartbeat_interval = undefined;
 
+    // Initialize connection to Discord Gateway.
     this.gateway_connection = this.initialize();
 
     // Handle errors from the gateway.
-    this.gateway_connection.on("error", () => {
-      // TODO: Logger for better details.
-      throw Error ("Error from the gateway.");
+    this.gateway_connection.on("close", (code) => {
+      handleGatewayClose(code);
     });
 
     this.gateway_connection.on("message", (evt) => {
       const message = JSON.parse(evt.toString());
-      console.info("New message:", message);
-
-      HandleGatewayMessage(message, this);
+      handleGatewayMessage(message, this);
     });
   }
 
@@ -79,6 +86,56 @@ class DiscordBotClient {
       console.debug("Sending heartbeat...", heartbeat_data);
       this.gateway_connection.send(JSON.stringify(heartbeat_data));
     }, heartbeat_interval);
+  }
+
+  public send_identify_message () {
+    const identify_data = {
+      op: 2, // Identify
+      d: {
+        token: this.token,
+        intents:
+          + 1 << 0 // GUILDS
+          + 1 << 1 // GUILD_MEMBERS
+          + 1 << 2 // GUILD_BANS
+          + 1 << 9, // GUILD_MESSAGES
+        properties: {
+          "$os": "linux",
+          "$browser": "Rikka",
+          "$device": "Rikka"
+        },
+
+        // Currently we don't compress.
+        compress: false,
+
+        presence: {
+          status: "online",
+          activities: [
+            {
+              type: "LISTENING",
+              name: "user commands",
+              created_at: Date.now()
+            }
+          ]
+        }
+      }
+    };
+
+    console.debug("Sending identify message...", identify_data);
+    this.gateway_connection.send(JSON.stringify(identify_data));
+  }
+
+  public send_resume_message () {
+    const resume_data = {
+      op: 6, // Resume
+      d: {
+        token: this.token,
+        session_id: this.bot_data.session_id,
+        seq: 0
+      }
+    };
+
+    console.debug("Sending resume message...", resume_data);
+    this.gateway_connection.send(JSON.stringify(resume_data));
   }
 }
 
