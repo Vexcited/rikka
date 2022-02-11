@@ -28,7 +28,7 @@ export interface HeartbeatAckOpCode extends GatewayMessageCommon {
   op: 11;
 }
 
-export default function HandleGatewayMessage (
+export default function handleGatewayMessage (
   message:
     | HelloOpCode
     | HeartbeatAckOpCode,
@@ -39,8 +39,9 @@ export default function HandleGatewayMessage (
     client.setup_heartbeat(message.d.heartbeat_interval);
     break;
   case 11:
+    console.debug("Heartbeat ACK received.");
     break;
   default:
-    console.info("Unhandled message:", message);
+    console.error("Unhandled message:", message);
   }
 }

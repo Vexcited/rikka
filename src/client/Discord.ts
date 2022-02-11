@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import HandleGatewayMessage from "./HandleGatewayMessage.js";
+import HandleGatewayMessage from "./handleGatewayMessage.js";
 
 class DiscordBotClient {
   /** Discord bot token. */
@@ -71,12 +71,13 @@ class DiscordBotClient {
 
     // Set new heartbeat interval.
     this.heartbeat_interval = setInterval(() => {
-      this.gateway_connection.send(JSON.stringify({
-        op: 1,
+      const heartbeat_data = {
+        op: 1, // Heartbeat
         d: null
-      }));
+      };
 
-      console.info("Should send heartbeat.");
+      console.debug("Sending heartbeat...", heartbeat_data);
+      this.gateway_connection.send(JSON.stringify(heartbeat_data));
     }, heartbeat_interval);
   }
 }
