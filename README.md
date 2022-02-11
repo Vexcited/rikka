@@ -48,4 +48,4 @@ npm install
 
 - `yarn watch`: Starts the Discord bot in development mode with live reload.
 - `yarn build`: Builds the bot to `./dist/` folder.
-- `yarn start`: Starts the bot builded under the `./dist/` folder in production mode.
+- `yarn start`: Starts the bot built under the `./dist/` folder in production mode.
