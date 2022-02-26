@@ -46,6 +46,14 @@ npm install
 
 ### Scripts
 
-- `yarn watch`: Starts the Discord bot in development mode with live reload.
-- `yarn build`: Builds the bot to `./dist/` folder.
-- `yarn start`: Starts the bot built under the `./dist/` folder in production mode.
+#### Development
+
+1. `cp .env.sample .env`, then edit `DEV_DISCORD_TOKEN` and `DEV_MONGODB_URI` variables. These will be used on development mode.
+2. `yarn watch` will run the bot in development mode with variables from `.env`.
+
+#### Production
+
+1. `cp .env.sample .env` if not already done, then edit `PROD_DISCORD_TOKEN`.
+2. Now you can build the Docker image and run it.
+  - `yarn start`: Will build and start with logs.
+  - `yarn start-daemon`: Will build and start in background.

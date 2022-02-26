@@ -15,6 +15,7 @@
     "baseUrl": "./",
 
     "strict": true,
+    "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

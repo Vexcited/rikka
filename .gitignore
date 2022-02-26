@@ -28,3 +28,6 @@ dist/
 
 # ENV variable file for `dotenv`.
 .env
+
+# Docker
+mongodb_data/

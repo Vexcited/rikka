@@ -5,15 +5,17 @@
     "name": "Mikkel RINGAUD",
     "url": "https://github.com/Vexcited"
   },
-  "main": "./dist/index.js",
   "type": "module",
   "license": "MIT",
   "scripts": {
     "watch": "cross-env NODE_ENV=development concurrently -k \"npm:watch-*\"",
-    "watch-build": "tsc -p tsconfig.json --watch && nodemon",
+    "watch-build": "tsc -p tsconfig.json --watch",
     "watch-start": "nodemon ./dist/index.js",
-    "build": "rimraf ./dist && tsc -p tsconfig.json",
-    "start": "cross-env NODE_ENV=production node ./dist/index.js"
+    "start": "docker-compose up --build",
+    "start-daemon": "docker-compose up -d --build",
+    "start-build": "rimraf ./dist && tsc -p tsconfig.json",
+    "start-production": "cross-env NODE_ENV=production node ./dist/index.js",
+    "stop": "docker-compose down"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
