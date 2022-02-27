@@ -1,56 +1,34 @@
 import type DiscordBotClient from "./Discord.js";
-import type { DispatchOpCode } from "./handleDispatch.js";
+import type {
+  OpCodeDispatch,
+  OpCodeHeartbeatAck,
+  OpCodeHello,
+  OpCodeInvalidSession,
+  OpCodeReconnect
+} from "../types/OpCodes.js";
 
 import handleDispatch from "./handleDispatch.js";
 
-export interface GatewayMessageCommon {
-  /** OP codes from <https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes>. */
-  op:
-    | 0 // Dispatch
-    | 1 // Heartbeat
-    | 2 // Identify
-    | 3 // Presence Update
-    | 4 // Voice State Update
-    | 6 // Resume
-    | 7 // Reconnect
-    | 8 // Request Guild Members
-    | 9 // Invalid Session
-    | 10 // Hello
-    | 11; // Heartbeat ACK
-}
-
-export interface InvalidSessionOpCode extends GatewayMessageCommon {
-  op: 9;
-  /**
-   * `true` if the session is resumable.
-   * `false` if the session is not resumable and should reconnect.
-   */
-  d: boolean;
-}
-
-export interface HelloOpCode extends GatewayMessageCommon {
-  op: 10;
-  d: {
-    heartbeat_interval: number;
-  }
-}
-
-/** Response of Heartbeat (1) when it's successful. */
-export interface HeartbeatAckOpCode extends GatewayMessageCommon {
-  op: 11;
-}
-
 export default function handleGatewayMessage (
   message:
-    | DispatchOpCode
-    | InvalidSessionOpCode
-    | HelloOpCode
-    | HeartbeatAckOpCode,
+    | OpCodeDispatch
+    | OpCodeHeartbeatAck
+    | OpCodeHello
+    | OpCodeInvalidSession
+    | OpCodeReconnect
+  ,
   client: DiscordBotClient
 ) {
   switch (message.op) {
-  case 0:
-    handleDispatch(message, client);
+  case 0: {
+    handleDispatch(message as OpCodeDispatch, client);
+    break;
+  }
+  // Reconnect
+  case 7:
+    // Reconnect by resuming, if resuming isn't
+    // successful, it will throw "Invalid Session" (9).
+    client.send_resume_message();
     break;
   // Invalid Session
   case 9:

@@ -12,7 +12,7 @@
     "sourceMap": true,
     "sourceRoot": "./src",
     "mapRoot": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./src",
 
     "strict": true,
     "incremental": true,

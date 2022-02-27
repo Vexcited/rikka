@@ -9,5 +9,7 @@ export default function handleGatewayClose (code: number) {
     throw new Error("Not authenticated.");
   case 4004:
     throw new Error("Invalid token.");
+  case 4014:
+    throw new Error("Disallowed intents, check the Discord API dashboard to see if you have enabled the following intents: 'GUILD_MEMBERS'.")
   }
 }

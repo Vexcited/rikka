@@ -1,8 +1,8 @@
 import WebSocket from "ws";
 
 import type {
-  DispatchReadyMessage
-} from "./handleDispatch.js";
+  EventReadyData
+} from "../types/GatewayEvents.js";
 
 import handleGatewayMessage from "./handleGatewayMessage.js";
 import handleGatewayClose from "./handleGatewayClose.js";
@@ -23,12 +23,14 @@ class DiscordBotClient {
   private heartbeat_interval?: NodeJS.Timer;
 
   /** Data from `READY` dispatch message. */
-  public bot_data?: DispatchReadyMessage["d"];
+  public bot_data?: EventReadyData;
+
+  /** Current sequence needed when resuming connection. */
   public bot_current_sequence: number;
 
   constructor (token: string) {
     if (!token) {
-      throw new Error("Expected one parameter 'token' in DiscordBotClient constructor.");
+      throw new Error("Expected one parameter: 'token', in DiscordBotClient constructor.");
     }
 
     this.token = token;
@@ -132,9 +134,7 @@ class DiscordBotClient {
   public send_resume_message () {
     // If the bot_data is missing, reload everything. 
     if (!this.bot_data) {
-      this.gateway_connection.close();
-      this.gateway_connection = this.initialize();
-      return;
+      return this.send_identify_message();
     }
 
     const resume_data = {
