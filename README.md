@@ -22,7 +22,7 @@ This section is all about how to get Rikka running locally.
 ### Prerequisites
 
 - Node.js LTS (>=16)
-- Yarn 1.x
+- Yarn (1.x)
 - Docker
 - docker-compose
 - Git
