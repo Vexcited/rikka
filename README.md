@@ -4,7 +4,7 @@
 
 Discord bot made from scratch using Node.js !
 
-Rikka is hosted and maintened, that means you can [add the bot to your Discord server](https://discord.com/oauth2/authorize?client_id=875460361862647938&permissions=0&scope=bot%20applications.commands).
+Rikka is hosted and maintened, that means you can [add the bot to your Discord server](https://discord.com/oauth2/authorize?client_id=875460361862647938&permissions=8&scope=bot%20applications.commands).
 
 ## Motivation
 
@@ -23,6 +23,8 @@ This section is all about how to get Rikka running locally.
 
 - Node.js LTS (>=16)
 - Yarn 1.x
+- Docker
+- docker-compose
 - Git
 
 ### Installation
@@ -57,3 +59,4 @@ npm install
 2. Now you can build the Docker image and run it.
   - `yarn start`: Will build and start with logs.
   - `yarn start-daemon`: Will build and start in background.
+3. If you're running `start-daemon`, you can stop the process using `yarn stop`. Also, you can stop the process and remove volumes and networks associated to the container by running `yarn stop-volumes`.

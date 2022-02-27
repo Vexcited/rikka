@@ -2,16 +2,28 @@ version: "3.8"
 
 services:
   mongodb:
-    image: mongo
+    image: mongo:4.4.12
     restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=rikka
       - MONGO_INITDB_ROOT_PASSWORD=admin
     volumes:
       - ./mongodb_data:/data/db
+    networks:
+      - rikka-network
 
   rikka:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - mongodb
     depends_on:
       - mongodb
-    build: .
-    restart: always
+    networks:
+      - rikka-network
+
+networks:
+  rikka-network:
+    driver: bridge
