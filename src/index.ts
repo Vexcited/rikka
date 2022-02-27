@@ -8,7 +8,8 @@ const DISCORD_TOKEN = process.env.NODE_ENV === "production"
   : process.env.DEV_DISCORD_TOKEN;
 
 if (!DISCORD_TOKEN) {
-  throw new Error(`'${process.env.NODE_ENV === "production" ? "PROD" : "DEV"}_DISCORD_TOKEN' environment variable is not set in the '.env' file.`);
+  const env_name = `${process.env.NODE_ENV === "production" ? "PROD" : "DEV"}_DISCORD_TOKEN`;
+  throw new Error(`'${env_name}' environment variable is not set in the '.env' file.`);
 }
 
 const MONGODB_URI = process.env.NODE_ENV === "production"
@@ -17,7 +18,8 @@ const MONGODB_URI = process.env.NODE_ENV === "production"
 
 // This can only happen in development mode.
 if (!MONGODB_URI) {
-  throw new Error("'DEV_MONGODB_URI' environment variable is missing.");
+  const env_name = "DEV_MONGODB_URI";
+  throw new Error(`'${env_name}' environment variable is missing.`);
 }
 
 // Connect to database.

@@ -1,5 +1,9 @@
 import WebSocket from "ws";
 
+import type {
+  DispatchReadyMessage
+} from "./handleDispatch.js";
+
 import handleGatewayMessage from "./handleGatewayMessage.js";
 import handleGatewayClose from "./handleGatewayClose.js";
 
@@ -19,7 +23,8 @@ class DiscordBotClient {
   private heartbeat_interval?: NodeJS.Timer;
 
   /** Data from `READY` dispatch message. */
-  public bot_data: any;
+  public bot_data?: DispatchReadyMessage["d"];
+  public bot_current_sequence: number;
 
   constructor (token: string) {
     if (!token) {
@@ -27,7 +32,7 @@ class DiscordBotClient {
     }
 
     this.token = token;
-    this.heartbeat_interval = undefined;
+    this.bot_current_sequence = 0;
 
     // Initialize connection to Discord Gateway.
     this.gateway_connection = this.initialize();
@@ -83,7 +88,7 @@ class DiscordBotClient {
         d: null
       };
 
-      console.debug("Sending heartbeat...", heartbeat_data);
+      console.debug("Sending heartbeat");
       this.gateway_connection.send(JSON.stringify(heartbeat_data));
     }, heartbeat_interval);
   }
@@ -94,10 +99,10 @@ class DiscordBotClient {
       d: {
         token: this.token,
         intents:
-          + 1 << 0 // GUILDS
-          + 1 << 1 // GUILD_MEMBERS
-          + 1 << 2 // GUILD_BANS
-          + 1 << 9, // GUILD_MESSAGES
+            1 << 0 // GUILDS
+          | 1 << 1 // GUILD_MEMBERS
+          | 1 << 2 // GUILD_BANS
+          | 1 << 9, // GUILD_MESSAGES
         properties: {
           "$os": "linux",
           "$browser": "Rikka",
@@ -120,21 +125,28 @@ class DiscordBotClient {
       }
     };
 
-    console.debug("Sending identify message...", identify_data);
+    console.debug("Sending identify message");
     this.gateway_connection.send(JSON.stringify(identify_data));
   }
 
   public send_resume_message () {
+    // If the bot_data is missing, reload everything. 
+    if (!this.bot_data) {
+      this.gateway_connection.close();
+      this.gateway_connection = this.initialize();
+      return;
+    }
+
     const resume_data = {
       op: 6, // Resume
       d: {
         token: this.token,
         session_id: this.bot_data.session_id,
-        seq: 0
+        seq: this.bot_current_sequence
       }
     };
 
-    console.debug("Sending resume message...", resume_data);
+    console.debug("Sending resume message");
     this.gateway_connection.send(JSON.stringify(resume_data));
   }
 }

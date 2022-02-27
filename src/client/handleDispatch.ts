@@ -5,16 +5,30 @@ interface DispatchCommonMessage extends GatewayMessageCommon {
   op: 0;
 }
 
-interface DispatchReadyMessage extends DispatchCommonMessage {
+export interface DispatchReadyMessage extends DispatchCommonMessage {
   t: "READY";
+  s: number;
+  op: 0;
   d: {
     v: number;
-    user: {
 
+    user: {
+      verified: boolean;
+      username: string;
+      mfa_enabled: boolean;
+      /** Snowflake */
+      id: string;
+      flags: number;
+      /** A bot don't have any e-mail address. */
+      email: string | null;
+      discriminator: string;
+      bot: boolean;
+      avatar: string;
     };
 
     guilds: {
-
+      unavailable: boolean;
+      id: string;
     }[];
 
     /** Used for resuming connections. */
@@ -23,7 +37,8 @@ interface DispatchReadyMessage extends DispatchCommonMessage {
     shard?: [shard_id: number, num_shards: number];
 
     application: {
-
+      id: string;
+      flags: number;
     };
   }
 }
@@ -35,8 +50,19 @@ export default function handleDispatch (
   message: DispatchOpCode,
   client: DiscordBotClient
 ) {
+
+  /**
+   * Update current sequence with last sequence from message.
+   */
+  if (message.s) {
+    client.bot_current_sequence = message.s;
+    console.debug(`Updated 'bot_current_sequence' with ${message.s}`);
+  }
+
+  console.log(message);
+  
   switch (message.t) {
-  case "READY":
+    case "READY":
     client.bot_data = message.d;
   }
 }
