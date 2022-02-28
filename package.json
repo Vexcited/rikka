@@ -8,9 +8,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "watch": "cross-env NODE_ENV=development concurrently -k \"npm:watch-build\" \"npm:watch-start\"",
-    "watch-build": "tsc -p tsconfig.json --watch",
-    "watch-start": "nodemon ./dist/index.js",
+    "dev": "cross-env NODE_ENV=development nodemon --watch './**/*.ts' --exec 'node' --loader ts-node/esm ./src/index.ts",
     "start": "docker-compose up --build",
     "start-daemon": "docker-compose up -d --build",
     "start-build": "rimraf ./dist && tsc -p tsconfig.json",
@@ -21,6 +19,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "mongoose": "^6.2.3",
+    "ts-node": "^10.5.0",
     "ws": "^8.5.0"
   },
   "optionalDependencies": {
@@ -32,7 +31,6 @@
     "@types/ws": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
-    "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.8.0",
     "nodemon": "^2.0.15",

@@ -12,7 +12,6 @@
     "sourceMap": true,
     "sourceRoot": "./src",
     "mapRoot": "./dist",
-    "baseUrl": "./src",
 
     "strict": true,
     "incremental": true,

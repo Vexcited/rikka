@@ -4,8 +4,8 @@ import type {
   EventReadyData
 } from "../types/GatewayEvents.js";
 
-import handleGatewayMessage from "./handleGatewayMessage.js";
-import handleGatewayClose from "./handleGatewayClose.js";
+import handleGatewayMessage from "../client/handleGatewayMessage.js";
+import handleGatewayClose from "../client/handleGatewayClose.js";
 
 class DiscordBotClient {
   /** Discord bot token. */
