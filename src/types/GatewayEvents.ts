@@ -57,4 +57,20 @@ export interface EventMessageCreateData extends OpCodeDispatch {
   id: string;
   flags: number;
   embeds: any[];
+
+  edited_timestamp: null | string;
+  content: string;
+  components: any[];
+  channel_id: string;
+
+  author: {
+    username: string;
+    public_flags: number;
+    id: string;
+    discriminator: string;
+    avatar: string;
+  };
+
+  attachments: any[];
+  guild_id: string;
 }

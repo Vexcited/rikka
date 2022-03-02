@@ -1,5 +1,6 @@
 import type {
-  EventReadyData
+  EventReadyData,
+  EventMessageCreateData
 } from "../types/GatewayEvents.js";
 
 export interface OpCodeDispatch {
@@ -14,14 +15,13 @@ export interface OpCodeDispatch {
   /** Event's name. */
   t:
     | "READY"
-    | "GUILD_CREATE"
     | "MESSAGE_CREATE"
-    | "MESSAGE_REACTION_CREATE"
 
     /** Event's data. */
-  d: 
+  d:
     | EventReadyData
-};
+    | EventMessageCreateData
+}
 
 export interface OpCodeReconnect {
   /** Reconnect */

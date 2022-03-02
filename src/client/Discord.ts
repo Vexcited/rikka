@@ -132,7 +132,7 @@ class DiscordBotClient {
   }
 
   public send_resume_message () {
-    // If the bot_data is missing, reload everything. 
+    // If the bot_data is missing, reload everything.
     if (!this.bot_data) {
       return this.send_identify_message();
     }

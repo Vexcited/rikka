@@ -19,13 +19,13 @@ export default function handleDispatch (
   }
 
   switch (message.t) {
-    case "READY":
-      handle_ready(message.d as EventReadyData, client);
-      break;
-    case "MESSAGE_CREATE":
-      handle_message_create(message.d as EventMessageCreateData, client);
-      break;
-    default:
-      console.debug(message);
+  case "READY":
+    handle_ready(message.d as EventReadyData, client);
+    break;
+  case "MESSAGE_CREATE":
+    handle_message_create(message.d as EventMessageCreateData, client);
+    break;
+  default:
+    console.debug(message);
   }
 }
