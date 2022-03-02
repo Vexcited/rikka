@@ -51,12 +51,12 @@ npm install
 #### Development
 
 1. `cp .env.sample .env`, then edit `DEV_DISCORD_TOKEN` and `DEV_MONGODB_URI` variables. These will be used on development mode.
-2. `yarn watch` will run the bot in development mode with variables from `.env`.
+2. `yarn dev` will run the bot in development mode with variables from `.env`.
 
 #### Production
 
 1. `cp .env.sample .env` if not already done, then edit `PROD_DISCORD_TOKEN`.
 2. Now you can build the Docker image and run it.
-  - `yarn start`: Will build and start with logs.
-  - `yarn start-daemon`: Will build and start in background.
-3. If you're running `start-daemon`, you can stop the process using `yarn stop`. Also, you can stop the process and remove volumes and networks associated to the container by running `yarn stop-volumes`.
+  - `yarn up`: Will build and start with logs.
+  - `yarn up -d`: Will build and start in background.
+3. If you're running `up -d`, you can stop the process using `yarn down`. Also, you can stop the process and remove volumes and networks associated to the container by running `yarn down -v`.
