@@ -1,6 +1,6 @@
-import type { OpCodeDispatch } from "./OpCodes.js";
+import type { Message } from "./DiscordApi.js";
 
-export interface EventReadyData extends OpCodeDispatch {
+export interface EventReadyData {
   /** Gateway version. */
   v: number;
 
@@ -35,42 +35,4 @@ export interface EventReadyData extends OpCodeDispatch {
   };
 }
 
-export interface EventMessageCreateData extends OpCodeDispatch {
-  type: number;
-  tts: boolean;
-  timestamp: string;
-  referenced_message: null;
-  pinned: boolean;
-  nonce: string;
-  mentions: any[];
-  mention_roles: string[];
-  mention_everyone: boolean
-
-  member: {
-    roles: string[];
-    mute: boolean;
-    joined_at: string;
-    hoisted_role: string;
-    deaf: boolean;
-  };
-
-  id: string;
-  flags: number;
-  embeds: any[];
-
-  edited_timestamp: null | string;
-  content: string;
-  components: any[];
-  channel_id: string;
-
-  author: {
-    username: string;
-    public_flags: number;
-    id: string;
-    discriminator: string;
-    avatar: string;
-  };
-
-  attachments: any[];
-  guild_id: string;
-}
+export type EventMessageCreateData = Message;

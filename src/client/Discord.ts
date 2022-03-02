@@ -7,12 +7,17 @@ import type {
 import handleGatewayMessage from "../client/handleGatewayMessage.js";
 import handleGatewayClose from "../client/handleGatewayClose.js";
 
+import got, { Got } from "got";
+import messageCommands, { MessageCommandType } from "../messageCommands/index.js";
+
 class DiscordBotClient {
   /** Discord bot token. */
   private token: string;
 
   /** Gateway connection to Discord. */
   public gateway_connection: WebSocket;
+  /** HTTP API for Discord (v9). */
+  public request_api: Got;
 
   /**
    * Interval in miliseconds we should send
@@ -28,6 +33,8 @@ class DiscordBotClient {
   /** Current sequence needed when resuming connection. */
   public bot_current_sequence: number;
 
+  public messageCommands: { [commandName: string]: MessageCommandType };
+
   constructor (token: string) {
     if (!token) {
       throw new Error("Expected one parameter: 'token', in DiscordBotClient constructor.");
@@ -38,6 +45,15 @@ class DiscordBotClient {
 
     // Initialize connection to Discord Gateway.
     this.gateway_connection = this.initialize();
+    this.request_api = got.extend({
+      prefixUrl: "https://discord.com/api/v9",
+      headers: {
+        "Authorization": `Bot ${token}`
+      }
+    });
+
+    // Initialize commands for events.
+    this.messageCommands = messageCommands;
 
     // Handle errors from the gateway.
     this.gateway_connection.on("close", (code) => {
@@ -104,7 +120,8 @@ class DiscordBotClient {
             1 << 0 // GUILDS
           | 1 << 1 // GUILD_MEMBERS
           | 1 << 2 // GUILD_BANS
-          | 1 << 9, // GUILD_MESSAGES
+          | 1 << 9 // GUILD_MESSAGES
+          | 1 << 10, // GUILD_MESSAGE_REACTIONS
         properties: {
           "$os": "linux",
           "$browser": "Rikka",
