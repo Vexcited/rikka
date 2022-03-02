@@ -36,3 +36,38 @@ export interface EventReadyData {
 }
 
 export type EventMessageCreateData = Message;
+
+export interface EventMessageReactionAddData {
+  user_id: string;
+  message_id: string;
+
+  member: {
+    user: any;
+    roles: string[];
+    mute: boolean;
+    joined_at: string;
+    hoisted_role: string;
+    deaf: boolean;
+  };
+
+  emoji: {
+    name: string;
+    id: null | string;
+  };
+
+  channel_id: string;
+  guild_id: string;
+}
+
+export interface EventMessageReactionRemoveData {
+  user_id: string;
+  message_id: string;
+
+  emoji: {
+    name: string,
+    id: null | string;
+  };
+
+  channel_id: string;
+  guild_id: string;
+}

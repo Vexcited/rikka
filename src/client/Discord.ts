@@ -16,6 +16,8 @@ class DiscordBotClient {
 
   /** Gateway connection to Discord. */
   public gateway_connection: WebSocket;
+  public gateway_connection_ping: number;
+
   /** HTTP API for Discord (v9). */
   public request_api: Got;
 
@@ -45,6 +47,7 @@ class DiscordBotClient {
 
     // Initialize connection to Discord Gateway.
     this.gateway_connection = this.initialize();
+    this.gateway_connection_ping = -1;
     this.request_api = got.extend({
       prefixUrl: "https://discord.com/api/v9",
       headers: {
@@ -58,6 +61,11 @@ class DiscordBotClient {
     // Handle errors from the gateway.
     this.gateway_connection.on("close", (code) => {
       handleGatewayClose(code);
+    });
+
+    // Handle pong from the gateway.
+    this.gateway_connection.on("pong", ms => {
+      console.log(ms);
     });
 
     this.gateway_connection.on("message", (evt) => {

@@ -2,12 +2,18 @@ import type DiscordBotClient from "../client/Discord.js";
 import type { OpCodeDispatch } from "../types/OpCodes.js";
 import type {
   EventReadyData,
-  EventMessageCreateData
+  EventMessageCreateData,
+  EventMessageReactionAddData,
+  EventMessageReactionRemoveData
 } from "../types/GatewayEvents.js";
 
+// Import every events.
 import handle_message_create from "../events/messageCreate.js";
 import handle_ready from "../events/ready.js";
+import handle_message_reaction_add from "../events/messageReactionAdd.js";
+import handle_message_reaction_remove from "../events/messageReactionRemove.js";
 
+// Dispatch the events and execute the handler.
 export default function handleDispatch (
   message: OpCodeDispatch,
   client: DiscordBotClient
@@ -25,7 +31,13 @@ export default function handleDispatch (
   case "MESSAGE_CREATE":
     handle_message_create(message.d as EventMessageCreateData, client);
     break;
+  case "MESSAGE_REACTION_ADD":
+    handle_message_reaction_add(message.d as EventMessageReactionAddData, client);
+    break;
+  case "MESSAGE_REACTION_REMOVE":
+    handle_message_reaction_remove(message.d as EventMessageReactionRemoveData, client);
+    break;
   default:
-    console.debug(message);
+    console.debug("Not handled gateway event !", message);
   }
 }

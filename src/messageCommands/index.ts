@@ -6,10 +6,12 @@ export type MessageCommandType = (
 
 // Importing all the commands.
 import helpCommand from "./help.js";
+import pingCommand from "./ping.js";
 
 // Exporting commands as a dictionnary.
 const messageCommands = {
-  "help": helpCommand
+  "help": helpCommand,
+  "ping": pingCommand
 };
 
 export default messageCommands;

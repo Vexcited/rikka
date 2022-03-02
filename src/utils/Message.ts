@@ -5,7 +5,7 @@ import type DiscordClient from "../client/Discord";
 
 class Message {
   public raw: DiscordApiMessage;
-  private client: DiscordClient;
+  public client: DiscordClient;
 
   constructor (data: DiscordApiMessage, client: DiscordClient) {
     this.raw = data;
