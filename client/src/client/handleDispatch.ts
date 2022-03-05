@@ -37,6 +37,11 @@ export default function handleDispatch (
   case "MESSAGE_REACTION_REMOVE":
     handle_message_reaction_remove(message.d as EventMessageReactionRemoveData, client);
     break;
+
+  // Ignore all these events.
+  case "GUILD_CREATE":
+  case "GUILD_MEMBER_UPDATE":
+    break;
   default:
     console.debug("Not handled gateway event !", message);
   }

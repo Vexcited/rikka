@@ -1,6 +1,10 @@
 import * as dotenv from "dotenv";
 import mongoose from "mongoose";
+
+import { startApiServer } from "./client/Api.js";
 import DiscordBotClient from "./client/Discord.js";
+
+// Load environment variables from .env file.
 dotenv.config();
 
 const DISCORD_TOKEN = process.env.NODE_ENV === "production"
@@ -24,8 +28,12 @@ if (!MONGODB_URI) {
 
 // Connect to database.
 await mongoose.connect(MONGODB_URI).catch(err => {
-  console.error("Error while connecting to MongoDB.", err);
+  console.error("Error while connecting to MongoDB.");
+  throw err;
 });
 
 // Create the client.
 new DiscordBotClient(DISCORD_TOKEN);
+
+// Create API server.
+startApiServer();

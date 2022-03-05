@@ -1,7 +1,7 @@
 import type {
   EventReadyData,
   EventMessageCreateData,
-  EventMessageReactionAddData
+  EventMessageReactionAddData,
   EventMessageReactionRemoveData
 } from "../types/GatewayEvents.js";
 
@@ -20,6 +20,10 @@ export interface OpCodeDispatch {
     | "MESSAGE_CREATE"
     | "MESSAGE_REACTION_ADD"
     | "MESSAGE_REACTION_REMOVE"
+
+    // Ignored events.
+    | "GUILD_CREATE"
+    | "GUILD_MEMBER_UPDATE"
 
     /** Event's data. */
   d:

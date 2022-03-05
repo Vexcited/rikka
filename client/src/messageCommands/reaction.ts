@@ -1,6 +1,6 @@
 import type { MessageCommandType } from "./index.js";
-import Guild from "../models/Guild.js";
 import { getGuild } from "../utils/databaseUtilities.js";
+import { MessageTypes } from "../types/DiscordApi.js";
 
 /**
  * Note: works only with a "REPLY" (19).
@@ -10,36 +10,53 @@ import { getGuild } from "../utils/databaseUtilities.js";
  * ROLE can be ID or a mention.
  */
 const reaction: MessageCommandType = async (message, args) => {
-  if (message.raw.type !== 19) return;
+  // Check if it's a reply and the message still exists.
+  if (message.raw.type !== MessageTypes.REPLY || !message.raw.message_reference?.message_id) return;
+  // Check if the message is in a guild.
+  if (!message.raw.guild_id) return;
 
-  const EMOTE = args.shift();
-  const ROLE = args.shift();
+  const emote = args.shift();
+  const role_id = message.raw.mention_roles[0] || args.shift()?.replace(/[<@&>]/, "") || "";
 
-  if (!EMOTE && !ROLE) {
-    await message.reply("You need to pass EMOTE_ID and ROLE_ID to arguments.");
+  if (!emote && !role_id) {
+    await message.reply("You need to pass an **emote** and a **role** to arguments.");
     return;
   }
 
-  if (!EMOTE) {
-    await message.reply("You need to pass EMOTE_ID.");
+  if (!emote) {
+    await message.reply("You need to pass an **emote**.");
     return;
   }
 
-  if (!ROLE) {
-    await message.reply("You need to pass ROLE_ID.");
+  if (!emote) {
+    await message.reply("You need to pass a **role**.");
     return;
   }
 
-  // Emote is the identifier to use them.
-  // (eg.: ":sparkles:", or, ":custom:1234567890123:")
-  const emote_id = EMOTE.trim();
-  // ID of the role.
-  // Remove "/[<@&>]/gi" to get ID from mention.
-  const role_id = ROLE.replace(/[<@&>]/gi, "").trim();
+  // Get the emote identifier to use them.
+  // Example for custom emotes: "custom:EMOTE_ID" or "a:custom:EMOTE_ID".
+  // When using unicode emote, it's just the unicode.
+  const emote_id = emote
+    // Remove "<" and ">" at the beginning and end.
+    .replace(/[<>]/gi, "")
+    // Remove first ":" if it's a custom emote.
+    .replace(/^:/, "");
 
   const guild_data = await getGuild(message.raw.guild_id);
+  const reactions: typeof guild_data["reactions"] = guild_data.reactions ?? new Map();
 
-  await message.reply(JSON.stringify(guild_data));
+  const referencedMessageId = message.raw.message_reference.message_id;
+  const reactionsReferencedMessage: Map<string, string> = reactions.get(referencedMessageId) ?? new Map();
+
+  // Add the reaction->role to the message.
+  reactionsReferencedMessage.set(emote_id, role_id);
+  reactions.set(referencedMessageId, reactionsReferencedMessage);
+
+  // Add the reaction to the referenced message.
+  await message.react(emote_id, { toReferenced: true });
+
+  // Save the new reactions for the guild into database.
+  await guild_data.updateOne({ reactions });
 };
 
 export default reaction;

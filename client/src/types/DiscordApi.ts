@@ -1,53 +1,548 @@
-export interface Message {
-  type: 
-    | 0 // Message
-    | 19 // Message w/reply.
+/** From <https://discord.com/developers/docs/resources/channel#channel-object-channel-types>. */
+export enum ChannelTypes {
+  GUILD_TEXT = 0,
+  DM = 1,
+  GUILD_VOICE = 2,
+  GROUP_DM = 3,
+  GUILD_CATEGORY = 4,
+  GUILD_NEWS = 5,
+  GUILD_STORE = 6,
+  GUILD_NEWS_THREAD = 10,
+  GUILD_PUBLIC_THREAD = 11,
+  GUILD_PRIVATE_THREAD = 12,
+  GUILD_STAGE_VOICE = 13
+}
 
-  tts: boolean;
-  timestamp: string; // Snowflake.
-
-  referenced_message: null | Message;
-
-  pinned: boolean;
-  nonce: string;
-
-  // Only on a reply.
-  message_reference?: {
-    message_id: string;
-    guild_id: string;
-    channel_id: string;
-  };
-
-  mentions: string[];
-  mention_roles: string[];
-  mention_everyone: boolean;
-
-  member: {
-    roles: string[],
-    mute: boolean;
-    joined_at: string;
-    hoisted_role: string;
-    deaf: boolean;
-  };
-
+/** From <https://discord.com/developers/docs/resources/channel#channel-object>. */
+export interface Channel {
   id: string;
-  flags: number;
+  type: ChannelTypes,
+  guild_id?: string;
+  position?: number;
+  permission_overwrites?: {
+    id: string;
+    /** Either `0` (role) or `1` (member). */
+    type: 0 | 1;
 
-  embeds: any[];
-  edited_timestamp: null | string;
+    allow: string;
+    deny: string;
+  }[];
+
+  name?: string;
+  topic?: string | null;
+  nsfw?: boolean;
+
+  last_message_id?: string | null;
+
+  /**
+   * Amount of seconds a user has to wait before sending
+   * another message (0-21600);
+   *
+   * Bots, as well as users with the permission `manage_messages`
+   * or `manage_channel`, are unaffected.
+   */
+  rate_limit_per_user?: number;
+
+  /** Bitrate (in bits) of the voice channel. */
+  bitrate?: number;
+
+  /** User limit of the voice channel. */
+  user_limit?: number;
+
+  /** The recipients of the DM. */
+  recipients?: User[];
+  /** Icon hash of the group DM. */
+  icon?: string | null;
+
+  /** ID of the creator of the group DM or thread. */
+  owner_id?: string;
+  /** Application ID of the group DM creator if it is bot-created. */
+  application_id?: string;
+
+  /**
+   * For guild channels: ID of the parent category for a channel
+   * (each parent category can contain up to 50 channels)
+   *
+   * For threads: ID of the text channel this thread was created.
+   */
+  parent_id?: string | null;
+
+  /**
+   * When the last pinned message was pinned.
+   * This may be null in events such as `GUILD_CREATE` when a message is not pinned.
+   */
+  last_pin_timestamp?: string | null;
+
+  /**
+   * Voice region ID for voice channels.
+   * `null` is for automatic.
+   */
+  rtc_region?: string | null;
+
+  /** The camera video quality mode of the voice channel, 1 when not present. */
+  video_quality_mode?: number;
+
+  /** An approximate count of messages in a thread, stops counting at 50. */
+  message_count?: number;
+
+  /** An approximate count of users in a thread, stops counting at 50. */
+  member_count?: number;
+
+  /** From <https://discord.com/developers/docs/resources/channel#thread-metadata-object>. */
+  thread_metadata?: {
+    archived: boolean;
+    /**
+     * Duration in minutes to automatically archive the thread after recent activity.
+     * Can be set to: `60`, `1440`, `4320`, `10080`.
+     */
+    auto_archive_duration: number;
+
+    /**
+     * Timestamp when the thread's archive status was last changed,
+     * used for calculating recent activity.
+     */
+    archive_timestamp: string;
+
+    /**
+     * Whether the thread is locked; when a thread is locked,
+     * only users with `MANAGE_THREADS` can unarchive it.
+     */
+    locked: boolean;
+
+    /**
+     * Whether non-moderators can add other non-moderators to a thread;
+     * only available on private threads.
+     */
+    invitable?: boolean;
+
+    /**
+     * Timestamp when the thread was created; only populated
+     * for threads created after `2022-01-09`.
+     */
+    create_timestamp?: string | null;
+  };
+
+  /** From <https://discord.com/developers/docs/resources/channel#thread-member-object>. */
+  member?: {
+    id?: string;
+    user_id?: string;
+
+    join_timestamp: string;
+    flags: number;
+  };
+
+  /**
+   * Default duration that the clients (not the API) will use for newly
+   * created threads, in minutes, to automatically archive the
+   * thread after recent activity.
+   * Can be set to: `60`, `1440`, `4320`, `10080`.
+   */
+  default_auto_archive_duration?: number;
+
+  permissions?: string;
+}
+
+export enum MessageTypes {
+  DEFAULT = 0,
+  RECIPIENT_ADD = 1,
+  RECIPIENT_REMOVE = 2,
+  CALL = 3,
+  CHANNEL_NAME_CHANGE = 4,
+  CHANNEL_ICON_CHANGE = 5,
+  CHANNEL_PINNED_MESSAGE = 6,
+  GUILD_MEMBER_JOIN = 7,
+  USER_PREMIUM_GUILD_SUBSCRIPTION = 8,
+  USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1 = 9,
+  USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2 = 10,
+  USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3 = 11,
+  CHANNEL_FOLLOW_ADD = 12,
+  GUILD_DISCOVERY_DISQUALIFIED = 14,
+  GUILD_DISCOVERY_REQUALIFIED = 15,
+  GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING = 16,
+  GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING = 17,
+  THREAD_CREATED = 18,
+  REPLY = 19,
+  CHAT_INPUT_COMMAND = 20,
+  THREAD_STARTER_MESSAGE = 21,
+  GUILD_INVITE_REMINDER = 22,
+  CONTEXT_MENU_COMMAND = 23
+}
+
+/** From <https://discord.com/developers/docs/resources/channel#message-object-message-structure>. */
+export interface Message {
+  id: string;
+  channel_id: string;
+  guild_id?: string;
+
+  /**
+   * The author object follows the structure of the user object,
+   * but is only a valid user in the case where the message is
+   * generated by a user or bot user.
+   *
+   * If the message is generated by a webhook, the author object
+   * corresponds to the webhook's id, username, and avatar.
+   *
+   * You can tell if a message is generated by a webhook by checking
+   * for the `webhook_id` on the message object.
+   * */
+  author: User;
+  member?: GuildMember;
 
   content: string;
-  components: any[];
-  channel_id: string;
+  timestamp: string;
+  edited_timestamp: string | null;
 
-  author: {
-    username: string;
-    public_flags: number;
-    id: string;
-    discriminator: string;
-    avatar: string;
+  tts: boolean;
+
+  /** Whether this message mentions everyone. */
+  mention_everyone: boolean;
+
+  /**
+   * Array of user objects, with an additional partial member field.
+   *
+   * The user objects in the mentions array will only have
+   * the partial member field present in `MESSAGE_CREATE`
+   * and `MESSAGE_UPDATE` events from text-based guild channels.
+   */
+  mentions: User[];
+  /** Array of role IDs. */
+  mention_roles: string[];
+  /** Array of channel mentions. */
+  mention_channels?: {
+    id: string
+    guild_id: string;
+    type: MessageTypes;
+    name: string;
   };
 
-  attachments: any[];
-  guild_id: string;
+  attachments: MessageAttachment[];
+  embeds: MessageEmbed[];
+  reactions?: {
+    count: number;
+    me: boolean;
+    emoji: Emoji;
+  }[];
+
+  nonce?: number | string;
+  pinned: boolean;
+
+  webhook_id?: string;
+  type: MessageTypes;
+
+  activity?: MessageActivity;
+  application?: Application;
+  application_id?: string;
+
+  flags?: number;
+
+  /**
+   * The message associated with the `message_reference`.
+   *
+   * Only on MessageTypes `19 = REPLY` and `21 = THREAD_STARTER_MESSAGE`.
+   * `null` when the referenced message was deleted.
+   */
+  referenced_message?: Message | null;
+  message_reference?: {
+    message_id?: string;
+
+    /**
+     * Is optional when creating a reply, but will
+     * always be present when receiving an event/response that
+     * includes this data model.
+     */
+    channel_id?: string;
+    guild_id?: string;
+
+    /**
+     * When sending, whether to error if the referenced message
+     * doesn't exist instead of sending as a normal (non-reply) message,
+     * default `true`. */
+    fail_if_not_exists?: boolean;
+  };
+
+  interaction?: MessageInteraction;
+  thread?: Channel;
+}
+
+export enum MessageActivityTypes {
+  JOIN = 1,
+  SPECTATE = 2,
+  LISTEN = 3,
+  JOIN_REQUEST = 5
+}
+
+export interface MessageActivity {
+  type: MessageActivityTypes;
+  party_id?: string;
+}
+
+export interface MessageAttachment {
+  id: string;
+  filename: string;
+  description?: string;
+  content_type?: string;
+  size: number;
+  url: string;
+  proxy_url: string;
+  /** Only if image. */
+  height?: number;
+  /** Only if image. */
+  width?: number;
+  ephemeral?: boolean;
+}
+
+export interface MessageEmbed {
+  title?: string;
+  description?: string;
+  url?: string;
+
+  /** Always `rich` for webhook embeds. */
+  type?:
+    | "rich"
+    | "image"
+    | "video"
+    | "gifv"
+    | "article"
+    | "link";
+
+  timestamp?: string;
+  color?: number;
+
+  footer?: {
+    text: string;
+    /** URL of footer icon (only supports http(s) and attachments). */
+    icon_url?: string;
+    /** A proxied url of footer icon. */
+    proxy_icon_url?: string;
+  };
+
+  image?: {
+    /** Source URL of image (only supports http(s) and attachments). */
+    url: string;
+    proxy_url?: string;
+    height?: number;
+    width?: number;
+  };
+
+  thumbnail?: {
+    /** Source URL of thumbnail (only supports http(s) and attachments). */
+    url: string;
+    proxy_url?: string;
+    height?: number;
+    width?: number;
+  };
+
+  video?: {
+    url?: string;
+    proxy_url?: string;
+    height?: number;
+    width?: number;
+  };
+
+  provider?: {
+    name?: string;
+    url?: string;
+  };
+
+  author?: {
+    name: string;
+    url?: string;
+    /** URL of author icon (only supports http(s) and attachments). */
+    icon_url?: string;
+    proxy_icon_url?: string;
+  };
+
+  fields?: {
+    name: string;
+    value: string;
+    /** Whether or not this field should display inline. */
+    inline?: boolean;
+  }[];
+}
+
+export enum InteractionTypes {
+  PING = 1,
+  APPLICATION_COMMAND = 2,
+  MESSAGE_COMPONENT = 3,
+  APPLICATION_COMMAND_AUTOCOMPLETE = 4,
+  MODAL_SUBMIT = 5
+}
+
+/**
+ * Based on <https://discord.com/developers/docs/interactions/receiving-and-responding#message-interaction-object-message-interaction-structure>.
+ */
+export interface MessageInteraction {
+  id: string;
+  name: string;
+  type: InteractionTypes;
+
+  user: User;
+  member?: GuildMember;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar?: string;
+  bot?: boolean;
+  system?: boolean;
+  mfa_enabled?: boolean;
+}
+
+export interface Emoji {
+  id: string;
+  name: string | null;
+
+  /** Roles allowed to use this emoji. */
+  roles?: string[];
+
+  /** User that created this emoji. */
+  user?: User;
+
+  require_colons?: boolean;
+  managed?: boolean;
+  animated?: boolean;
+
+  /** Whether this emoji can be used, may be false due to loss of Server Boosts. */
+  available?: boolean;
+}
+
+/**
+ * Based on <https://discord.com/developers/docs/resources/guild#guild-member-object>.
+ */
+export interface GuildMember {
+  /**
+   * This field user won't be included in the member
+   * object attached to `MESSAGE_CREATE` and `MESSAGE_UPDATE` gateway events.
+   */
+  user?: User;
+
+  nick?: string;
+  avatar?: string;
+
+  /** Array of role ID. */
+  roles: string[];
+
+  /** When the user joined the guild, in ISO8601 timestamp. */
+  joined_at: string;
+  /** When the user started boosting the guild, in ISO8601 timestamp. */
+  premium_since?: string;
+
+  /** Whether the user is deafened in voice channels. */
+  deaf: boolean;
+
+  /** Whether the user is muted in voice channels. */
+  mute: boolean;
+
+  /**
+   * Whether the user has not yet passed the
+   * guild's [Membership Screening requirements](https://discord.com/developers/docs/resources/guild#membership-screening-object).
+   *
+   * In `GUILD_` events, pending will always be
+   * included as `true` or `false`.
+   *
+   * In non `GUILD_` events which can only be triggered
+   * by non-pending users, pending will not be included.
+   */
+  pending?: boolean;
+
+  /**
+   * Total permissions of the member in the channel, including overwrites,
+   * returned when in the interaction object.
+   */
+  permissions?: string;
+
+  /**
+   * When the user's timeout will expire and the user
+   * will be able to communicate in the guild again,
+   * `null` or a time in the past if the user is not timed out.
+   *
+   * In ISO8601 timestamp.
+   */
+  communication_disabled_until?: string;
+}
+
+export interface GuildRole {
+  id: string;
+  name: string;
+
+  /** Integer representation of hexadecimal color code. */
+  color: number;
+
+  /** If this role is pinned in the user listing. */
+  hoist: boolean;
+
+  icon?: string;
+  unicode_emoji?: string;
+
+  position: number;
+  permissions: string;
+
+  /** Whether this role is managed by an integration. */
+  managed: boolean;
+  mentionable: boolean;
+
+  tags?: {
+    /** The id of the bot this role belongs to. */
+    bot_id?: string;
+    /** The id of the integration this role belongs to. */
+    integration_id?: string;
+    /** Whether this is the guild's premium subscriber role. */
+    premium_subscriber?: null;
+  }
+}
+
+/**
+ * Based on <https://discord.com/developers/docs/resources/application#application-object>.
+ */
+export interface Application {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+
+  /** An array of RPC origin URLs, if RPC is enabled. */
+  rpc_origins?: string[];
+
+  /** When `false` only app owner can join the app's bot to guilds. */
+  bot_public: boolean;
+  /**
+   * When `true` the app's bot will only join
+   * upon completion of the full OAuth2 code grant flow.
+   */
+  bot_require_code_grant: boolean;
+
+  terms_of_service_url?: string;
+  privacy_policy_url?: string;
+  owner?: User;
+
+  summary: string;
+  verify_key: string;
+  team: Team;
+  guild_id?: string;
+  primary_sku_id?: string;
+  slug?: string;
+  cover_image?: string;
+  flags?: number;
+}
+
+export interface Team {
+  icon?: string;
+  id: string;
+  members: TeamMember[];
+  name: string;
+  owner_user_id: string;
+}
+
+export enum TeamMembershipStateTypes {
+  INVITED = 1,
+  ACCEPTED = 2
+}
+
+export interface TeamMember {
+  membership_state: TeamMembershipStateTypes,
+  permissions: string[];
+  team_id: string;
+  user: User;
 }

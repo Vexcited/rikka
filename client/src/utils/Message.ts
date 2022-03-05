@@ -17,9 +17,26 @@ class Message {
       json: {
         content
       }
-    }).json();
+    }).json<Message>();
 
     return response;
+  }
+
+  /**
+   * @param emote - Emote the message will be reacted with.
+   *
+   * Options
+   *  - `toReferenced` = true, will react to the referenced message.
+   */
+  public async react (emote: string, { toReferenced = false } = {}) {
+    if (toReferenced && !this.raw.message_reference) return;
+
+    const emote_encoded = encodeURIComponent(emote);
+    const message_id = toReferenced ? this.raw.message_reference?.message_id : this.raw.id;
+    const channel_id = toReferenced ? this.raw.message_reference?.channel_id : this.raw.channel_id;
+
+    const resquest_url = `channels/${channel_id}/messages/${message_id}/reactions/${emote_encoded}/@me`;
+    await this.client.request_api.put(resquest_url);
   }
 }
 

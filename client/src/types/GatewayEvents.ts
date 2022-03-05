@@ -1,4 +1,8 @@
-import type { Message } from "./DiscordApi.js";
+import type {
+  Message,
+  GuildMember,
+  Emoji
+} from "./DiscordApi.js";
 
 export interface EventReadyData {
   /** Gateway version. */
@@ -39,35 +43,21 @@ export type EventMessageCreateData = Message;
 
 export interface EventMessageReactionAddData {
   user_id: string;
+  channel_id: string;
   message_id: string;
 
-  member: {
-    user: any;
-    roles: string[];
-    mute: boolean;
-    joined_at: string;
-    hoisted_role: string;
-    deaf: boolean;
-  };
+  guild_id?: string;
 
-  emoji: {
-    name: string;
-    id: null | string;
-  };
-
-  channel_id: string;
-  guild_id: string;
+  /** Member who reacted if this happened in a guild. */
+  member?: GuildMember;
+  emoji: Emoji;
 }
 
 export interface EventMessageReactionRemoveData {
   user_id: string;
+  channel_id: string;
   message_id: string;
 
-  emoji: {
-    name: string,
-    id: null | string;
-  };
-
-  channel_id: string;
-  guild_id: string;
+  guild_id?: string;
+  emoji: Emoji;
 }
