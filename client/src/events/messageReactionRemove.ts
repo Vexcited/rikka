@@ -1,11 +1,34 @@
 import type { EventMessageReactionRemoveData } from "../types/GatewayEvents.js";
 import type DiscordBotClient from "../client/Discord.js";
 
-import Message from "../utils/Message.js";
+import { getGuild } from "../utils/databaseUtilities.js";
 
 export default async function handle_message_reaction_remove (
   message_data: EventMessageReactionRemoveData,
   client: DiscordBotClient
 ) {
-  console.info("Remove role " + message_data.emoji + " for " + message_data.user_id);
+  // Ignore all reaction events not coming from guilds.
+  if (!message_data.guild_id) return;
+
+  const guild_data = await getGuild(message_data.guild_id);
+
+  const emote_data = message_data.emoji;
+  const reactionsFromMessageId = guild_data.reactions?.get(message_data.message_id);
+
+  if (!reactionsFromMessageId) return;
+
+  const emote_id = (emote_data.animated ? "a:" : "") + emote_data.name + (emote_data.id ? `:${emote_data.id}` : "");
+
+  const role_id = reactionsFromMessageId.get(emote_id);
+  const guild_id = message_data.guild_id;
+  const user_id = message_data.user_id;
+
+  try {
+    await client.request_api.delete(
+      `guilds/${guild_id}/members/${user_id}/roles/${role_id}`
+    );
+  }
+  catch (e) {
+    console.error(e);
+  }
 }

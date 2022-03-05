@@ -21,8 +21,17 @@ export default async function handle_message_reaction_add (
   if (!reactionsFromMessageId) return;
 
   const emote_id = (emote_data.animated ? "a:" : "") + emote_data.name + (emote_data.id ? `:${emote_data.id}` : "");
+
   const role_id = reactionsFromMessageId.get(emote_id);
+  const guild_id = message_data.guild_id;
   const user_id = message_data.user_id;
 
-  console.info(emote_id, role_id, user_id);
+  try {
+    await client.request_api.put(
+      `guilds/${guild_id}/members/${user_id}/roles/${role_id}`
+    );
+  }
+  catch (e) {
+    console.error(e);
+  }
 }
