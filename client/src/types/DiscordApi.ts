@@ -546,3 +546,15 @@ export interface TeamMember {
   team_id: string;
   user: User;
 }
+
+/** From <https://discord.com/developers/docs/topics/permissions#permissions>. */
+export enum Permissions {
+  "ADMINISTRATOR" = 1 << 3,
+  "KICK_MEMBERS" = 1 << 1,
+  "BAN_MEMBERS" = 1 << 2,
+  "MANAGE_CHANNELS" = 1 << 4,
+  "MANAGE_GUILD" = 1 << 5,
+  "MANAGE_MESSAGES" = 1 << 13,
+  "MANAGE_ROLES" = 1 << 28,
+  "MODERATE_MEMBERS" = 1 << 40
+}
